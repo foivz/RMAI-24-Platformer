@@ -29,7 +29,7 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
        player = Player(0f, 0f)
 
        loadMapData(context, pixelsPerMeter, playerX, playerY)
-       playing = true
+       //playing = true
     }
 
     fun getBitmap(blockType: Char): Bitmap {
