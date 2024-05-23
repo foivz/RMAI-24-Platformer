@@ -12,10 +12,12 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
     val bitmaps: Array<Bitmap?> = arrayOfNulls(20)
 
     private var currentLevel: LevelData? = null
-    private var playing = false
-    public var playerIndex = 0
+    var playing = false
+    var playerIndex = 0
     private var currentIndex = 0
-    public var player: Player
+    var player: Player
+
+    var gravity: Float = 6f
 
     init {
         currentLevel = when (level) {
@@ -74,6 +76,16 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
 
                 }
             }
+        }
+    }
+
+    fun switchPlayingStatus() {
+        playing = !playing
+
+        if (!playing) {
+            gravity = 0f
+        } else {
+            gravity = 6f
         }
     }
 }

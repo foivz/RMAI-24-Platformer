@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.view.MotionEvent
 import android.view.SurfaceView
 import com.hr.foi.rmai_platformer.entities.GameObject
 import com.hr.foi.rmai_platformer.levels.LevelManager
@@ -86,11 +87,29 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
                         gameObject.width.toFloat(),
                         gameObject.height.toFloat())) {
                     gameObject.visible = true
+                }
 
+                if (levelManager.playing) {
+                    gameObject.update(fps, levelManager.gravity)
                 }
             } else {
                 gameObject.visible = false
             }
         }
+
+        if (levelManager.playing) {
+            viewport.setWorldCenter(
+                levelManager.gameObjects[levelManager.playerIndex].worldLocation.x,
+                levelManager.gameObjects[levelManager.playerIndex].worldLocation.y
+            )
+        }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_DOWN -> levelManager.switchPlayingStatus()
+        }
+
+        return true
     }
 }

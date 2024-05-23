@@ -8,6 +8,6 @@ class Grass(locationX : Int, locationY: Int) :
     }
 
     override fun update(fps: Int, gravity: Float) {
-        TODO("Not yet implemented")
+
     }
 }

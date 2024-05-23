@@ -17,6 +17,35 @@ abstract class GameObject(
     var visible: Boolean = false
     var active: Boolean = true
 
+    var facing = 0
+    val LEFT = -1
+    var RIGHT = 1
+
+    private var _xVelocity: Float
+    private var _yVelocity: Float
+
+    var moves = false
+    var xVelocity: Float
+        get() = _xVelocity
+        set(value) {
+            if (moves) {
+                _xVelocity = value
+            }
+        }
+
+    var yVelocity: Float
+        get() = _yVelocity
+        set(value) {
+            if (moves) {
+                _yVelocity = value
+            }
+        }
+
+    init {
+        _xVelocity = 0f
+        _yVelocity = 0f
+    }
+
     abstract fun update(fps: Int, gravity: Float)
 
     fun setWorldLocation(x: Float, y: Float, z: Int) {
@@ -36,5 +65,15 @@ abstract class GameObject(
                 false)
 
         return bitmap
+    }
+
+    fun move(fps: Int) {
+        if (xVelocity != 0f) {
+            worldLocation.x += xVelocity / fps
+        }
+
+        if (yVelocity != 0f) {
+            worldLocation.y += yVelocity / fps
+        }
     }
 }
