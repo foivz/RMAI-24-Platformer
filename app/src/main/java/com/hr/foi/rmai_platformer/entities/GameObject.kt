@@ -3,6 +3,8 @@ package com.hr.foi.rmai_platformer.entities
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Rect
+import com.hr.foi.rmai_platformer.utils.RectHitbox
 
 abstract class GameObject(
         val width: Int,
@@ -14,6 +16,7 @@ abstract class GameObject(
 
         val worldLocation: WorldLocation = WorldLocation(0f, 0f, 0)
 
+    val rectHitbox = RectHitbox()
     var visible: Boolean = false
     var active: Boolean = true
 
@@ -44,9 +47,17 @@ abstract class GameObject(
     init {
         _xVelocity = 0f
         _yVelocity = 0f
+
+        updateRectHitbox()
     }
 
     abstract fun update(fps: Int, gravity: Float)
+    fun updateRectHitbox() {
+        rectHitbox.bottom = worldLocation.y + height
+        rectHitbox.top = worldLocation.y
+        rectHitbox.left = worldLocation.x
+        rectHitbox.right = worldLocation.x + width
+    }
 
     fun setWorldLocation(x: Float, y: Float, z: Int) {
             worldLocation.x = x

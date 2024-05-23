@@ -5,6 +5,7 @@ class Grass(locationX : Int, locationY: Int) :
 
     init {
         setWorldLocation(locationX.toFloat(), locationY.toFloat(), 0)
+        updateRectHitbox()
     }
 
     override fun update(fps: Int, gravity: Float) {

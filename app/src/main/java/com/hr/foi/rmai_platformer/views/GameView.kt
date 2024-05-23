@@ -20,7 +20,7 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
     init {
         viewport = Viewport(width, height)
 
-        loadLevel("TestLevel", 15f, 0.25f)
+        loadLevel("TestLevel", 16f, 0.25f)
     }
 
     fun loadLevel(level: String, playerX: Float, playerY: Float) {
@@ -96,6 +96,8 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
                         gameObject.width.toFloat(),
                         gameObject.height.toFloat())) {
                     gameObject.visible = true
+                    
+                    checkCollisionWithPlayer(gameObject)
                 }
 
                 if (levelManager.playing) {
@@ -111,6 +113,23 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
                 levelManager.gameObjects[levelManager.playerIndex].worldLocation.x,
                 levelManager.gameObjects[levelManager.playerIndex].worldLocation.y
             )
+        }
+    }
+
+    private fun checkCollisionWithPlayer(gameObject: GameObject) {
+        val hit: Int = levelManager.player.checkCollisions(gameObject.rectHitbox)
+        if (hit > 0) {
+            when (gameObject.type) {
+                else -> {
+                   if (hit == 1) {
+                       levelManager.player.xVelocity = 0f
+                       levelManager.player.isPressingRight = false
+                   }
+                   if (hit == 2) {
+                       levelManager.player.isFalling = false
+                   }
+                }
+            }
         }
     }
 
