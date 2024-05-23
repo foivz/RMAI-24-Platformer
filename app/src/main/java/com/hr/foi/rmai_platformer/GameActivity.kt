@@ -31,6 +31,18 @@ class GameActivity : AppCompatActivity() {
         setContentView(gameView)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        gameThread?.gameRunning = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        gameThread?.gameRunning = false
+    }
+
     private val surfaceCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
         override fun surfaceCreated(holder: SurfaceHolder) {
             gameThread = GameThread(holder, gameView)

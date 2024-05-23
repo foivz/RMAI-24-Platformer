@@ -1,7 +1,7 @@
 package com.hr.foi.rmai_platformer.entities
 
 class Player(locationX: Float, locationY: Float) :
-    GameObject(2, 1, 5, "player", 'p') {
+    GameObject(1, 2, 5, "player", 'p') {
 
     var isPressingLeft = false
     var isPressingRight = false

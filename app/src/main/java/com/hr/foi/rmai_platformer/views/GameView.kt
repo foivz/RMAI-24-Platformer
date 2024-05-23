@@ -72,6 +72,15 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
                 canvas.drawText("PlayerY: " +
                         "${levelManager.gameObjects[levelManager.playerIndex].worldLocation.y}",
                         10f, 200f, paint)
+                canvas.drawText("Gravity: " +
+                        levelManager.gravity,
+                    10f, 250f, paint)
+                canvas.drawText("xVelocity: " +
+                        levelManager.gameObjects[levelManager.playerIndex].xVelocity,
+                    10f, 300f, paint)
+                canvas.drawText("yVelocity: " +
+                        levelManager.gameObjects[levelManager.playerIndex].yVelocity,
+                    10f, 350f, paint)
 
                 viewport.resetNumClipped()
             }
