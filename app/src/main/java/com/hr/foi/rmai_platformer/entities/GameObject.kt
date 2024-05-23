@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import com.hr.foi.rmai_platformer.utils.RectHitbox
+import com.hr.foi.rmai_platformer.views.Animation
 
 abstract class GameObject(
         val width: Int,
@@ -14,7 +15,10 @@ abstract class GameObject(
         val type: Char
                 ) {
 
-        val worldLocation: WorldLocation = WorldLocation(0f, 0f, 0)
+    private var animated: Boolean = false
+    val worldLocation: WorldLocation = WorldLocation(0f, 0f, 0)
+
+    var anim: Animation? = null
 
     val rectHitbox = RectHitbox()
     var visible: Boolean = false
@@ -26,6 +30,8 @@ abstract class GameObject(
 
     private var _xVelocity: Float
     private var _yVelocity: Float
+
+    private val animFps = 16
 
     var moves = false
     var xVelocity: Float
@@ -52,6 +58,27 @@ abstract class GameObject(
     }
 
     abstract fun update(fps: Int, gravity: Float)
+
+    fun setAnimated(pixelsPerMeter: Int) {
+        this.animated = true
+
+        anim = Animation(
+            pixelsPerMeter,
+            width,
+            height,
+            animFrameCount,
+            animFps
+        )
+    }
+
+    fun getRectToDraw(deltaTime: Long): Rect {
+        return anim!!.getCurrentFrame(
+            deltaTime,
+            xVelocity,
+            moves
+        )
+    }
+
     fun updateRectHitbox() {
         rectHitbox.bottom = worldLocation.y + height
         rectHitbox.top = worldLocation.y
@@ -87,4 +114,6 @@ abstract class GameObject(
             worldLocation.y += yVelocity / fps
         }
     }
+
+
 }
