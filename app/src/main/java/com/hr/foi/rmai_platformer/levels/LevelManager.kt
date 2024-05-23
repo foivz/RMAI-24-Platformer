@@ -13,7 +13,7 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
 
     private var currentLevel: LevelData? = null
     private var playing = false
-    private var playerIndex = 0
+    public var playerIndex = 0
     private var currentIndex = 0
     public var player: Player
 

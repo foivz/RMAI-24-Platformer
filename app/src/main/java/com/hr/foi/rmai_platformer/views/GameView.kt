@@ -14,6 +14,8 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
     private val viewport: Viewport
     private lateinit var levelManager: LevelManager
 
+    private val debugging = true
+
     init {
         viewport = Viewport(width, height)
 
@@ -52,6 +54,25 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
                             paint)
                     }
                 }
+            }
+
+            if (debugging) {
+                paint.textSize = 48f
+                paint.textAlign = Paint.Align.LEFT
+                paint.color = Color.argb(255, 255, 255, 255)
+
+                canvas.drawText("Num objects ${levelManager.gameObjects.size}",
+                                10f, 50f, paint)
+                canvas.drawText("Num clipped: ${viewport.numClipped}",
+                                10f, 100f, paint)
+                canvas.drawText("PlayerX: " +
+                        "${levelManager.gameObjects[levelManager.playerIndex].worldLocation.x}",
+                        10f, 150f, paint)
+                canvas.drawText("PlayerY: " +
+                        "${levelManager.gameObjects[levelManager.playerIndex].worldLocation.y}",
+                        10f, 200f, paint)
+
+                viewport.resetNumClipped()
             }
         }
     }
