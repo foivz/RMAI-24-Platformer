@@ -68,4 +68,16 @@ class Viewport(screenWidth: Int, screenHeight: Int) {
         currentWorldCenter.x = x
         currentWorldCenter.y = y
     }
+
+    fun getPixelsPerMetreY(): Int {
+        return pixelsPerMeterY
+    }
+
+    fun getScreenCenterY(): Int {
+        return screenCenterY
+    }
+
+    fun getViewportWorldCentreY(): Float {
+        return currentWorldCenter.y
+    }
 }

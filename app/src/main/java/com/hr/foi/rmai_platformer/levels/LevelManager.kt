@@ -1,13 +1,15 @@
 package com.hr.foi.rmai_platformer.levels
 
+import android.R.attr
 import android.content.Context
 import android.graphics.Bitmap
 import com.hr.foi.rmai_platformer.entities.Drone
 import com.hr.foi.rmai_platformer.entities.ExtraLife
+import com.hr.foi.rmai_platformer.entities.Fire
 import com.hr.foi.rmai_platformer.entities.GameObject
 import com.hr.foi.rmai_platformer.entities.Guard
 import com.hr.foi.rmai_platformer.entities.Player
-
+import com.hr.foi.rmai_platformer.entities.Teleport
 import com.hr.foi.rmai_platformer.entities.platforms.Brick
 import com.hr.foi.rmai_platformer.entities.platforms.Coal
 import com.hr.foi.rmai_platformer.entities.platforms.Concrete
@@ -22,15 +24,19 @@ import com.hr.foi.rmai_platformer.entities.scenery.Stalactite
 import com.hr.foi.rmai_platformer.entities.scenery.Stalagmite
 import com.hr.foi.rmai_platformer.entities.scenery.Tree
 import com.hr.foi.rmai_platformer.entities.scenery.Tree2
+
+
 class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX: Float, playerY: Float, screenWidth: Int) {
     val gameObjects: ArrayList<GameObject> = ArrayList()
-    val bitmaps: Array<Bitmap?> = arrayOfNulls(20)
+    var backgrounds: ArrayList<Background> = ArrayList()
+
     private val bitmaps: Array<Bitmap?> = arrayOfNulls(25)
 
     private var currentLevel: LevelData? = null
     var playing = false
     var playerIndex = 0
     private var currentIndex = 0
+    private var teleportIndex = -1
     var player: Player
     var gravity = 6f
 
@@ -88,23 +94,26 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
     }
 
     private fun loadMapData(context: Context, pixelsPerMeter: Int, playerX: Float, playerY: Float) {
-        val levelHeight = currentLevel!!.tiles.size
-        val levelWidth = currentLevel!!.tiles[0].length
+        levelHeight = currentLevel!!.tiles.size
+        levelWidth = currentLevel!!.tiles[0].length
 
         var c: Char
         for (j in 0..<levelWidth) {
             for (i in 0..<levelHeight) {
-                c = currentLevel!!.tiles[i][j]
+                try {
+                    c = currentLevel!!.tiles[i][j]
 
-                if (c != '.') {
-                    when (c) {
-                        '1' -> gameObjects.add(Grass(j, i))
-                        'p' -> {
-                            player = Player(playerX, playerY)
-                            gameObjects.add(player)
-                            playerIndex = currentIndex
+                    if (c != '.') {
+                        when (c) {
+                            '1' -> gameObjects.add(Grass(j, i))
+                            'p' -> {
+                                player = Player(playerX, playerY, pixelsPerMeter)
+                                gameObjects.add(player)
+                            }
                             'c' -> gameObjects.add(Coin(j, i ,c))
                             'e' -> gameObjects.add(ExtraLife(j, i, c))
+                            'd' -> gameObjects.add(Drone(j, i))
+                            'g' -> gameObjects.add(Guard(j, i, pixelsPerMeter))
                             'w' -> gameObjects.add(Tree(j, i))
                             'x' -> gameObjects.add(Tree2(j, i))
                             'l' -> gameObjects.add(Lampost(j, i))
@@ -119,12 +128,22 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
                             '5' -> gameObjects.add(Scorched(j, i))
                             '6' -> gameObjects.add(Snow(j, i))
                             '7' -> gameObjects.add(Stone(j, i))
+                            't' -> {
+                                teleportIndex++
+                                gameObjects.add(Teleport(j, i, currentLevel!!.locations[teleportIndex]))
+                            }
+                        }
 
-                    if (bitmaps[getBitmapIndex(c)] == null) {
-                        bitmaps[getBitmapIndex(c)] = gameObjects[currentIndex].prepareBitmap(context, pixelsPerMeter)
+                        if (bitmaps[getBitmapIndex(c)] == null) {
+                            bitmaps[getBitmapIndex(c)] = gameObjects[currentIndex].prepareBitmap(context, pixelsPerMeter)
+                        }
+
+                        currentIndex++
                     }
-                    currentIndex++
-
+                } catch (ex: StringIndexOutOfBoundsException) {
+                    print("Invalid level design")
+                } catch (ex2: IndexOutOfBoundsException) {
+                    val x = 0
                 }
             }
         }

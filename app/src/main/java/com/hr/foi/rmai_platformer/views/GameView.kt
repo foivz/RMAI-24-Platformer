@@ -1,6 +1,7 @@
 package com.hr.foi.rmai_platformer.views
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
@@ -10,9 +11,12 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.view.MotionEvent
 import android.view.SurfaceView
+import com.hr.foi.rmai_platformer.entities.Drone
 import com.hr.foi.rmai_platformer.entities.GameObject
 import com.hr.foi.rmai_platformer.entities.PlayerState
+import com.hr.foi.rmai_platformer.entities.Teleport
 import com.hr.foi.rmai_platformer.levels.LevelManager
+import com.hr.foi.rmai_platformer.levels.Location
 import com.hr.foi.rmai_platformer.utils.InputController
 import com.hr.foi.rmai_platformer.utils.RectHitbox
 
@@ -303,6 +307,12 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
         levelManager.player.setxVelocity(0f)
     }
 
+    private fun handleTeleport(gameObject: GameObject) {
+        val teleport = gameObject as Teleport
+        val t: Location = teleport.target
+        loadLevel(t.level, t.x, t.y)
+    }
+
     private fun handleFire() {
         playerState.loseLife()
 
@@ -319,6 +329,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
                 'd' -> handleEnemy()
                 'g' -> handleEnemy()
                 'f' -> handleFire()
+                't' -> handleTeleport(gameObject)
                 else -> {
                     if (hit == 1) {
                         levelManager.player.setxVelocity(0f)
