@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import com.hr.foi.rmai_platformer.entities.Drone
 import com.hr.foi.rmai_platformer.entities.ExtraLife
 import com.hr.foi.rmai_platformer.entities.GameObject
-import com.hr.foi.rmai_platformer.entities.Grass
+import com.hr.foi.rmai_platformer.entities.Guard
 import com.hr.foi.rmai_platformer.entities.Player
 
 import com.hr.foi.rmai_platformer.entities.platforms.Brick
@@ -51,10 +51,11 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
        loadMapData(context, pixelsPerMeter, playerX, playerY)
        loadBackgrounds(context, pixelsPerMeter, screenWidth)
 
+       setWaypoints()
     }
 
     fun getBitmap(blockType: Char): Bitmap {
-        var index = getBitmapIndex(blockType)
+        val index = getBitmapIndex(blockType)
 
         return bitmaps[index]!!
     }
@@ -65,12 +66,15 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
             'p' -> 2
             'c' -> 3
             'e' -> 4
+            'd' -> 5
+            'g' -> 6
             '2' -> 7
             '3' -> 8
             '4' -> 9
             '5' -> 10
             '6' -> 11
             '7' -> 12
+            't' -> 13
             'w' -> 14
             'x' -> 15
             'l' -> 16
@@ -134,6 +138,15 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
             0f
         }
     }
+
+    private fun setWaypoints() {
+        for (guard in gameObjects) {
+            if (guard.type == 'g') {
+                findWaypoints(guard)
+            }
+        }
+    }
+
     private fun loadBackgrounds(
         context: Context,
         pixelsPerMetre: Int, screenWidth: Int
@@ -146,6 +159,53 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
                     pixelsPerMetre, screenWidth, bgData
                 )
             )
+        }
+    }
+
+    private fun isTileTwoSpacesBelow(tile: GameObject, guard: GameObject) = tile.worldLocation.y == guard.worldLocation.y + 2
+
+    private fun isXCoordSame(tile: GameObject, guard: GameObject) = tile.worldLocation.x == guard.worldLocation.x
+
+    private fun getLeftmostTile(startTileIndex: Int): Float {
+        for (i in 0..4) {
+            return if (!gameObjects[startTileIndex - i].traversable) {
+                gameObjects[startTileIndex - (i + 1)].worldLocation.x
+            } else {
+                gameObjects[startTileIndex - 5].worldLocation.x
+            }
+        }
+
+        return -1f
+    }
+
+    private fun getRightmostTile(startTileIndex: Int): Float {
+        for (i in 0..4) {
+            return if (!gameObjects[startTileIndex + i].traversable) {
+                gameObjects[startTileIndex + (i - 1)].worldLocation.x
+            } else {
+                gameObjects[startTileIndex + 5].worldLocation.x
+            }
+        }
+
+        return -1f
+    }
+
+    private fun findWaypoints(guard: GameObject) {
+        var startTileIndex = -1
+        var waypointX1: Float
+        var waypointX2: Float
+
+        for (tile in gameObjects) {
+            startTileIndex++
+            if (isTileTwoSpacesBelow(tile, guard)) {
+                if (isXCoordSame(tile, guard)) {
+                    waypointX1 = getLeftmostTile(startTileIndex)
+                    waypointX2 = getRightmostTile(startTileIndex)
+
+                    val g = guard as Guard
+                    g.setWaypoints(waypointX1, waypointX2)
+                }
+            }
         }
     }
 }

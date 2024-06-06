@@ -276,6 +276,15 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
             }
         }
     }
+
+    private fun handlePickup(gameObject: GameObject, hit: Int) {
+        gameObject.active = false
+        gameObject.visible = false
+
+        // Sve osim pogotka u noge
+        if (hit != 2) levelManager.player.restorePreviousVelocity()
+    }
+
     private fun handleExtraLife(gameObject: GameObject, hit: Int) {
         handlePickup(gameObject, hit)
         playerState.addLife()
@@ -284,6 +293,14 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
     private fun handleCoinPickup(gameObject: GameObject, hit: Int) {
         handlePickup(gameObject, hit)
         playerState.gotCredit()
+    }
+
+    private fun handleEnemy() {
+        playerState.loseLife()
+
+        val location = PointF(playerState.loadLocation().x, playerState.loadLocation().y)
+        levelManager.player.setWorldLocation(location.x, location.y, 0)
+        levelManager.player.setxVelocity(0f)
     }
 
     private fun handleFire() {
@@ -299,6 +316,8 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
             when (gameObject.type) {
                 'c' -> handleCoinPickup(gameObject, hit)
                 'e' -> handleExtraLife(gameObject, hit)
+                'd' -> handleEnemy()
+                'g' -> handleEnemy()
                 'f' -> handleFire()
                 else -> {
                     if (hit == 1) {
