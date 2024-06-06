@@ -2,7 +2,8 @@ package com.hr.foi.rmai_platformer.levels
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
+import com.hr.foi.rmai_platformer.entities.Drone
+import com.hr.foi.rmai_platformer.entities.ExtraLife
 import com.hr.foi.rmai_platformer.entities.GameObject
 import com.hr.foi.rmai_platformer.entities.Grass
 import com.hr.foi.rmai_platformer.entities.Player
@@ -62,6 +63,8 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
         return when(blockType) {
             '1' -> 1
             'p' -> 2
+            'c' -> 3
+            'e' -> 4
             '2' -> 7
             '3' -> 8
             '4' -> 9
@@ -95,8 +98,8 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
                             player = Player(playerX, playerY)
                             gameObjects.add(player)
                             playerIndex = currentIndex
-                        }
-                    }
+                            'c' -> gameObjects.add(Coin(j, i ,c))
+                            'e' -> gameObjects.add(ExtraLife(j, i, c))
                             'w' -> gameObjects.add(Tree(j, i))
                             'x' -> gameObjects.add(Tree2(j, i))
                             'l' -> gameObjects.add(Lampost(j, i))

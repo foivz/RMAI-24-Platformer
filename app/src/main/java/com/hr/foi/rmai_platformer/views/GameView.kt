@@ -11,6 +11,7 @@ import android.graphics.RectF
 import android.view.MotionEvent
 import android.view.SurfaceView
 import com.hr.foi.rmai_platformer.entities.GameObject
+import com.hr.foi.rmai_platformer.entities.PlayerState
 import com.hr.foi.rmai_platformer.levels.LevelManager
 import com.hr.foi.rmai_platformer.utils.InputController
 import com.hr.foi.rmai_platformer.utils.RectHitbox
@@ -275,11 +276,23 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
             }
         }
     }
+    private fun handleExtraLife(gameObject: GameObject, hit: Int) {
+        handlePickup(gameObject, hit)
+        playerState.addLife()
+    }
+
+    private fun handleCoinPickup(gameObject: GameObject, hit: Int) {
+        handlePickup(gameObject, hit)
+        playerState.gotCredit()
+    }
+
 
     private fun checkCollisionsWithPlayer(gameObject: GameObject) {
         val hit: Int = levelManager.player.checkCollisions(gameObject.rectHitbox)
         if (hit > 0) {
             when (gameObject.type) {
+                'c' -> handleCoinPickup(gameObject, hit)
+                'e' -> handleExtraLife(gameObject, hit)
                 else -> {
                     if (hit == 1) {
                         levelManager.player.setxVelocity(0f)
