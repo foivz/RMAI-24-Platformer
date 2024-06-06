@@ -21,17 +21,18 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
     private lateinit var levelManager: LevelManager
     private val debugging = false
     private lateinit var inputController: InputController
+    private var playerState: PlayerState = PlayerState()
 
     init {
         loadLevel("LevelCave", 1f, 16f)
-
-        loadLevel("TestLevel", 16f, 0.25f)
     }
 
     private fun loadLevel(level: String, playerX: Float, playerY: Float) {
         levelManager = LevelManager(level, context, viewport.pixelsPerMeterX, playerX, playerY, screenWidth)
         inputController = InputController(screenWidth, screenHeight, levelManager)
-        levelManager = LevelManager(level, context, viewport.pixelsPerMeterX, playerX, playerY)
+
+        val location = PointF(playerX, playerY)
+        playerState.saveLocation(location)
 
         viewport.setWorldCenter(
             levelManager.player.worldLocation.x,
@@ -124,6 +125,10 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
                 levelManager.gameObjects[levelManager.playerIndex].worldLocation.x,
                 levelManager.gameObjects[levelManager.playerIndex].worldLocation.y
             )
+            if (playerState.getLives() <= 0) {
+                playerState = PlayerState()
+                loadLevel("LevelCave", 5f, 16f)
+            }
         }
     }
 
