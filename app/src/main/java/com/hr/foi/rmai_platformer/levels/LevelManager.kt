@@ -14,6 +14,14 @@ import com.hr.foi.rmai_platformer.entities.platforms.Grass
 import com.hr.foi.rmai_platformer.entities.platforms.Scorched
 import com.hr.foi.rmai_platformer.entities.platforms.Snow
 import com.hr.foi.rmai_platformer.entities.platforms.Stone
+import com.hr.foi.rmai_platformer.entities.scenery.Boulders
+import com.hr.foi.rmai_platformer.entities.scenery.Cart
+import com.hr.foi.rmai_platformer.entities.scenery.Lampost
+import com.hr.foi.rmai_platformer.entities.scenery.Stalactite
+import com.hr.foi.rmai_platformer.entities.scenery.Stalagmite
+import com.hr.foi.rmai_platformer.entities.scenery.Tree
+import com.hr.foi.rmai_platformer.entities.scenery.Tree2
+class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX: Float, playerY: Float, screenWidth: Int) {
     val gameObjects: ArrayList<GameObject> = ArrayList()
     val bitmaps: Array<Bitmap?> = arrayOfNulls(20)
 
@@ -22,8 +30,9 @@ import com.hr.foi.rmai_platformer.entities.platforms.Stone
     var playerIndex = 0
     private var currentIndex = 0
     var player: Player
+    var gravity = 6f
 
-    var gravity: Float = 6f
+    var levelHeight = 0
 
     init {
         currentLevel = when (level) {
@@ -44,12 +53,16 @@ import com.hr.foi.rmai_platformer.entities.platforms.Stone
         return bitmaps[index]!!
     }
 
-    fun getBitmapIndex(blockType: Char): Int {
-        var index = 0
-
-        index = when(blockType) {
+    private fun getBitmapIndex(blockType: Char): Int {
+        return when(blockType) {
             '1' -> 1
             'p' -> 2
+            '2' -> 7
+            '3' -> 8
+            '4' -> 9
+            '5' -> 10
+            '6' -> 11
+            '7' -> 12
             'w' -> 14
             'x' -> 15
             'l' -> 16
@@ -88,6 +101,12 @@ import com.hr.foi.rmai_platformer.entities.platforms.Stone
                             's' -> gameObjects.add(Stalagmite(j, i))
                             'm' -> gameObjects.add(Cart(j, i))
                             'z' -> gameObjects.add(Boulders(j, i))
+                            '2' -> gameObjects.add(Brick(j, i))
+                            '3' -> gameObjects.add(Coal(j, i))
+                            '4' -> gameObjects.add(Concrete(j, i))
+                            '5' -> gameObjects.add(Scorched(j, i))
+                            '6' -> gameObjects.add(Snow(j, i))
+                            '7' -> gameObjects.add(Stone(j, i))
 
                     if (bitmaps[getBitmapIndex(c)] == null) {
                         bitmaps[getBitmapIndex(c)] = gameObjects[currentIndex].prepareBitmap(context, pixelsPerMeter)
