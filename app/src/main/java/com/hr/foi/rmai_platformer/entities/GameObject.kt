@@ -7,37 +7,41 @@ import android.graphics.Rect
 import com.hr.foi.rmai_platformer.utils.RectHitbox
 import com.hr.foi.rmai_platformer.views.Animation
 
-abstract class GameObject(
-        val width: Int,
-        val height: Int,
-        val animFrameCount: Int,
-        val bitmapName: String,
-        val type: Char
-                ) {
 
-    private var animated: Boolean = false
+abstract class GameObject(
+    val width: Float,
+    val height: Float,
+    var animFrameCount: Int,
+    private val bitmapName: String,
+    val type: Char) {
+
     val worldLocation: WorldLocation = WorldLocation(0f, 0f, 0)
 
-    var anim: Animation? = null
-
-    val rectHitbox = RectHitbox()
     var visible: Boolean = false
     var active: Boolean = true
+    var traversable: Boolean = false
+    val rectHitbox = RectHitbox()
 
-    var facing = 0
-    val LEFT = -1
-    var RIGHT = 1
+    private var anim: Animation? = null
+    var animated = false
+    protected var animFps = 1
 
-    private var _xVelocity: Float
-    private var _yVelocity: Float
+    init {
+        setxVelocity(0f)
+        setyVelocity(0f)
+    }
 
-    private val animFps = 16
+    fun updateRectHitbox() {
+        rectHitbox.top = worldLocation.y
+        rectHitbox.left = worldLocation.x
+        rectHitbox.bottom = worldLocation.y + height
+        rectHitbox.right = worldLocation.x + width
+    }
 
-    var moves = false
     var xVelocity: Float
         get() = _xVelocity
         set(value) {
-            if (moves) {
+            if(moves) {
                 _xVelocity = value
             }
         }
@@ -45,25 +49,27 @@ abstract class GameObject(
     var yVelocity: Float
         get() = _yVelocity
         set(value) {
-            if (moves) {
+            if(moves) {
                 _yVelocity = value
             }
         }
 
-    init {
-        _xVelocity = 0f
-        _yVelocity = 0f
-
-        updateRectHitbox()
-    }
+    private var _xVelocity = 0f
+    private var _yVelocity = 0f
+    val LEFT = -1
+    val RIGHT = 1
+    var facing = 0
+    var moves = false
 
     abstract fun update(fps: Int, gravity: Float)
 
-    fun setAnimated(pixelsPerMeter: Int) {
-        this.animated = true
-
+    fun setAnimated(
+        pixelsPerMetre: Int,
+        animated: Boolean
+    ) {
+        this.animated = animated
         anim = Animation(
-            pixelsPerMeter,
+            pixelsPerMetre,
             width,
             height,
             animFrameCount,
@@ -79,11 +85,9 @@ abstract class GameObject(
         )
     }
 
-    fun updateRectHitbox() {
-        rectHitbox.bottom = worldLocation.y + height
-        rectHitbox.top = worldLocation.y
-        rectHitbox.left = worldLocation.x
-        rectHitbox.right = worldLocation.x + width
+
+    fun setWorldLocation(x: Float, y: Float) {
+
     }
 
     fun setWorldLocation(x: Float, y: Float, z: Int) {
@@ -98,22 +102,31 @@ abstract class GameObject(
 
         var bitmap = BitmapFactory.decodeResource(context.resources, resID)
         bitmap = Bitmap.createScaledBitmap(bitmap,
-                (width * animFrameCount * pixelsPerMeter),
-                (height * pixelsPerMeter),
+                ((width * animFrameCount * pixelsPerMeter).toInt()),
+                ((height * pixelsPerMeter).toInt()),
                 false)
 
         return bitmap
     }
 
     fun move(fps: Int) {
-        if (xVelocity != 0f) {
-            worldLocation.x += xVelocity / fps
+        if(xVelocity != 0f) {
+            this.worldLocation.x += xVelocity / fps
         }
-
-        if (yVelocity != 0f) {
-            worldLocation.y += yVelocity / fps
+        if(yVelocity != 0f) {
+            this.worldLocation.y += yVelocity / fps
         }
     }
 
+    fun setxVelocity(xVelocity: Float) {
+        if (moves) {
+            this.xVelocity = xVelocity
+        }
+    }
 
+    fun setyVelocity(yVelocity: Float) {
+        if (moves) {
+            this.yVelocity = yVelocity
+        }
+    }
 }

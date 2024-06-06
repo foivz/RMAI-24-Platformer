@@ -3,27 +3,34 @@ package com.hr.foi.rmai_platformer.views
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.PointF
 import android.graphics.Rect
+import android.graphics.RectF
 import android.view.MotionEvent
 import android.view.SurfaceView
 import com.hr.foi.rmai_platformer.entities.GameObject
 import com.hr.foi.rmai_platformer.levels.LevelManager
+import com.hr.foi.rmai_platformer.utils.InputController
+import com.hr.foi.rmai_platformer.utils.RectHitbox
 
 class GameView(context: Context, width: Int, height: Int) : SurfaceView(context) {
     private val paint = Paint()
-    private val viewport: Viewport
+    private val viewport: Viewport = Viewport(screenWidth, screenHeight)
     private lateinit var levelManager: LevelManager
-
-    private val debugging = true
+    private val debugging = false
+    private lateinit var inputController: InputController
 
     init {
-        viewport = Viewport(width, height)
+        loadLevel("LevelCave", 1f, 16f)
 
         loadLevel("TestLevel", 16f, 0.25f)
     }
 
-    fun loadLevel(level: String, playerX: Float, playerY: Float) {
+    private fun loadLevel(level: String, playerX: Float, playerY: Float) {
+        levelManager = LevelManager(level, context, viewport.pixelsPerMeterX, playerX, playerY, screenWidth)
+        inputController = InputController(screenWidth, screenHeight, levelManager)
         levelManager = LevelManager(level, context, viewport.pixelsPerMeterX, playerX, playerY)
 
         viewport.setWorldCenter(
@@ -88,16 +95,18 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
     }
 
     fun update(fps: Int) {
+        this.fps = fps
         for (gameObject: GameObject in levelManager.gameObjects) {
             if (gameObject.active) {
                 if (!viewport.clipObjects(
                         gameObject.worldLocation.x,
                         gameObject.worldLocation.y,
-                        gameObject.width.toFloat(),
-                        gameObject.height.toFloat())) {
+                        gameObject.width,
+                        gameObject.height
+                    )) {
                     gameObject.visible = true
-                    
-                    checkCollisionWithPlayer(gameObject)
+
+                    checkCollisionsWithPlayer(gameObject)
                 }
 
                 if (levelManager.playing) {
@@ -117,17 +126,18 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
     }
 
     private fun checkCollisionWithPlayer(gameObject: GameObject) {
+    private fun checkCollisionsWithPlayer(gameObject: GameObject) {
         val hit: Int = levelManager.player.checkCollisions(gameObject.rectHitbox)
         if (hit > 0) {
             when (gameObject.type) {
                 else -> {
-                   if (hit == 1) {
-                       levelManager.player.xVelocity = 0f
-                       levelManager.player.isPressingRight = false
-                   }
-                   if (hit == 2) {
-                       levelManager.player.isFalling = false
-                   }
+                    if (hit == 1) {
+                        levelManager.player.setxVelocity(0f)
+                        levelManager.player.isPressingRight = false
+                    }
+                    if (hit == 2) {
+                        levelManager.player.isFalling = false
+                    }
                 }
             }
         }
