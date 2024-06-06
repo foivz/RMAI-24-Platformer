@@ -7,7 +7,13 @@ import com.hr.foi.rmai_platformer.entities.GameObject
 import com.hr.foi.rmai_platformer.entities.Grass
 import com.hr.foi.rmai_platformer.entities.Player
 
-class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX: Float, playerY: Float) {
+import com.hr.foi.rmai_platformer.entities.platforms.Brick
+import com.hr.foi.rmai_platformer.entities.platforms.Coal
+import com.hr.foi.rmai_platformer.entities.platforms.Concrete
+import com.hr.foi.rmai_platformer.entities.platforms.Grass
+import com.hr.foi.rmai_platformer.entities.platforms.Scorched
+import com.hr.foi.rmai_platformer.entities.platforms.Snow
+import com.hr.foi.rmai_platformer.entities.platforms.Stone
     val gameObjects: ArrayList<GameObject> = ArrayList()
     val bitmaps: Array<Bitmap?> = arrayOfNulls(20)
 
@@ -44,6 +50,13 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
         index = when(blockType) {
             '1' -> 1
             'p' -> 2
+            'w' -> 14
+            'x' -> 15
+            'l' -> 16
+            'r' -> 17
+            's' -> 18
+            'm' -> 19
+            'z' -> 20
             else -> 0
         }
 
@@ -68,6 +81,13 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
                             playerIndex = currentIndex
                         }
                     }
+                            'w' -> gameObjects.add(Tree(j, i))
+                            'x' -> gameObjects.add(Tree2(j, i))
+                            'l' -> gameObjects.add(Lampost(j, i))
+                            'r' -> gameObjects.add(Stalactite(j, i))
+                            's' -> gameObjects.add(Stalagmite(j, i))
+                            'm' -> gameObjects.add(Cart(j, i))
+                            'z' -> gameObjects.add(Boulders(j, i))
 
                     if (bitmaps[getBitmapIndex(c)] == null) {
                         bitmaps[getBitmapIndex(c)] = gameObjects[currentIndex].prepareBitmap(context, pixelsPerMeter)
