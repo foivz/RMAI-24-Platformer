@@ -36,8 +36,10 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
 
     init {
         currentLevel = when (level) {
-           "TestLevel" -> TestLevel()
-           "LevelCave" -> LevelCave()
+            "LevelCave" -> LevelCave()
+            "LevelCity" -> LevelCity()
+            "LevelForest" -> LevelForest()
+            "LevelMountain" -> LevelMountain()
             else -> TestLevel()
        }
 
@@ -72,8 +74,6 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
             'z' -> 20
             else -> 0
         }
-
-        return index
     }
 
     private fun loadMapData(context: Context, pixelsPerMeter: Int, playerX: Float, playerY: Float) {
