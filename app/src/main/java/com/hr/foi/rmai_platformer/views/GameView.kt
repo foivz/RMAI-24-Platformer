@@ -286,6 +286,12 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
         playerState.gotCredit()
     }
 
+    private fun handleFire() {
+        playerState.loseLife()
+
+        levelManager.player.setWorldLocation(playerState.loadLocation().x, playerState.loadLocation().y)
+        levelManager.player.setxVelocity(0f)
+    }
 
     private fun checkCollisionsWithPlayer(gameObject: GameObject) {
         val hit: Int = levelManager.player.checkCollisions(gameObject.rectHitbox)
@@ -293,6 +299,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
             when (gameObject.type) {
                 'c' -> handleCoinPickup(gameObject, hit)
                 'e' -> handleExtraLife(gameObject, hit)
+                'f' -> handleFire()
                 else -> {
                     if (hit == 1) {
                         levelManager.player.setxVelocity(0f)

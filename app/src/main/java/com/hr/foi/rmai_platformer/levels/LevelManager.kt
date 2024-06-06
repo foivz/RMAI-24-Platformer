@@ -78,6 +78,7 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
             's' -> 18
             'm' -> 19
             'z' -> 20
+            'f' -> 21
             else -> 0
         }
     }
@@ -107,6 +108,7 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
                             's' -> gameObjects.add(Stalagmite(j, i))
                             'm' -> gameObjects.add(Cart(j, i))
                             'z' -> gameObjects.add(Boulders(j, i))
+                            'f' -> gameObjects.add(Fire(j, i, pixelsPerMeter))
                             '2' -> gameObjects.add(Brick(j, i))
                             '3' -> gameObjects.add(Coal(j, i))
                             '4' -> gameObjects.add(Concrete(j, i))
