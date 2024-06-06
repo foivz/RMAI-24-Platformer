@@ -162,4 +162,11 @@ class Player(locationX: Float, locationY: Float, pixelsPerMetre: Int) :
             }
         }
     }
+
+    fun pullTrigger(): Boolean {
+        return bfg.shoot(worldLocation.x,
+            worldLocation.y,
+            facing, height);
+    }
+
 }

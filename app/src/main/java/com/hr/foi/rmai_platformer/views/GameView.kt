@@ -109,6 +109,8 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
                     checkCollisionsWithPlayer(gameObject)
                 }
 
+                checkBulletCollisions(gameObject)
+
                 if (levelManager.playing) {
                     gameObject.update(fps, levelManager.gravity)
                 }
@@ -125,7 +127,30 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
         }
     }
 
-    private fun checkCollisionWithPlayer(gameObject: GameObject) {
+    private fun checkBulletCollisions(gameObject: GameObject) {
+        for (i in 0 until levelManager.player.bfg.numBullets) {
+            val r = RectHitbox()
+            r.left = levelManager.player.bfg.getBulletX(i)
+            r.top = levelManager.player.bfg.getBulletY(i)
+            r.right = levelManager.player.bfg.getBulletX(i) + .1f
+            r.bottom = levelManager.player.bfg.getBulletY(i) + .1f
+
+            if (gameObject.rectHitbox.intersects(r)) {
+                levelManager.player.bfg.hideBullet(i)
+
+                val objectLocation = gameObject.worldLocation
+                if (gameObject.type == 'g') {
+                    gameObject.setWorldLocation(
+                        objectLocation.x +
+                                2 * levelManager.player.bfg.getDirection(i),
+                                objectLocation.y, objectLocation.z)
+                } else if (gameObject.type == 'd') {
+                    gameObject.setWorldLocation(-100f, -100f, 0)
+                }
+            }
+        }
+    }
+
     private fun checkCollisionsWithPlayer(gameObject: GameObject) {
         val hit: Int = levelManager.player.checkCollisions(gameObject.rectHitbox)
         if (hit > 0) {

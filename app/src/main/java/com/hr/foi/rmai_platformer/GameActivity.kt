@@ -15,6 +15,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var gameView: GameView
     private var gameThread: GameThread? = null
     private lateinit var surfaceHolder: SurfaceHolder
+    private var holder: SurfaceHolder? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,34 +32,44 @@ class GameActivity : AppCompatActivity() {
         setContentView(gameView)
     }
 
+    private fun startGame() {
+        if (holder != null) {
+            gameThread = GameThread(holder!!, gameView)
+            gameThread?.start()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
 
         gameThread?.gameRunning = true
+        startGame()
     }
 
+    private fun pauseGame() {
+        gameThread?.gameRunning = false
+
+        try {
+            gameThread?.join()
+        } catch (_: InterruptedException) {
+        }
+    }
     override fun onPause() {
         super.onPause()
 
-        gameThread?.gameRunning = false
+        pauseGame()
     }
 
     private val surfaceCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
-        override fun surfaceCreated(holder: SurfaceHolder) {
-            gameThread = GameThread(holder, gameView)
-            gameThread?.start()
+        override fun surfaceCreated(h: SurfaceHolder) {
+            holder = h
+            startGame()
         }
 
         override fun surfaceChanged(holder: SurfaceHolder, p1: Int, p2: Int, p3: Int) { }
 
         override fun surfaceDestroyed(holder: SurfaceHolder) {
-            gameThread?.gameRunning = false
-
-            try {
-                gameThread?.join()
-            } catch (_: InterruptedException) {
-            }
+            pauseGame()
         }
-
     }
 }
