@@ -10,6 +10,7 @@ class GameThread(val surfaceHolder: SurfaceHolder, val gameView: GameView) : Thr
     var fps: Int = 0
     private var frameStartTime: Long = 0
     private var frameElapsedTime: Long = 0
+    private var targetTime = 16
 
     override fun run() {
         while (gameRunning) {
@@ -26,6 +27,13 @@ class GameThread(val surfaceHolder: SurfaceHolder, val gameView: GameView) : Thr
                 frameElapsedTime = System.currentTimeMillis() - frameStartTime
                 if (frameElapsedTime > 1) {
                     fps = (1000 / frameElapsedTime).toInt()
+
+                    try {
+                        if (fps > 60)  sleep(targetTime - frameElapsedTime)
+                    }
+                    catch (ex: InterruptedException)
+                    {
+                    }
                 }
             }
         }

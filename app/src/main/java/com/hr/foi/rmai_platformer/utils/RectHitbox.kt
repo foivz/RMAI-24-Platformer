@@ -5,17 +5,19 @@ class RectHitbox {
     var left = 0f
     var bottom = 0f
     var right = 0f
+    var height = 0f
 
     fun intersects(rectHitbox: RectHitbox): Boolean {
-        var intersection = false
+        var hit = false
 
+        // Presjek na x-osi
         if (right > rectHitbox.left && left < rectHitbox.right) {
+            // Presjek na y-osi
             if (top < rectHitbox.bottom && bottom > rectHitbox.top) {
-                intersection = true
+                // Kolizija
+                hit = true
             }
         }
-
-        return intersection
+        return hit
     }
-
 }
