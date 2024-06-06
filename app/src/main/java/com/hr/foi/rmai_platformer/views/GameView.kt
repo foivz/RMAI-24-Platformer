@@ -248,8 +248,17 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
         if (levelManager.playing) {
             viewport.setWorldCenter(
                 levelManager.gameObjects[levelManager.playerIndex].worldLocation.x,
-                levelManager.gameObjects[levelManager.playerIndex].worldLocation.y
-            )
+                levelManager.gameObjects[levelManager.playerIndex].worldLocation.y)
+
+            if (levelManager.player.worldLocation.x < 0 ||
+                levelManager.player.worldLocation.x > levelManager.levelWidth ||
+                levelManager.player.worldLocation.y > levelManager.levelHeight) {
+
+                playerState.loseLife()
+                levelManager.player.setWorldLocation(levelManager.player.worldLocation.x, levelManager.player.worldLocation.y)
+                levelManager.player.setxVelocity(0f)
+            }
+
             if (playerState.getLives() <= 0) {
                 playerState = PlayerState()
                 loadLevel("LevelCave", 5f, 16f)
