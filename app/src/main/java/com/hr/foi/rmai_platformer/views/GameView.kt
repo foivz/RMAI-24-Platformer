@@ -15,7 +15,8 @@ import com.hr.foi.rmai_platformer.levels.LevelManager
 import com.hr.foi.rmai_platformer.utils.InputController
 import com.hr.foi.rmai_platformer.utils.RectHitbox
 
-class GameView(context: Context, width: Int, height: Int) : SurfaceView(context) {
+
+class GameView(context: Context, private val screenWidth: Int, private val screenHeight: Int) : SurfaceView(context) {
     private val paint = Paint()
     private val viewport: Viewport = Viewport(screenWidth, screenHeight)
     private lateinit var levelManager: LevelManager
@@ -40,57 +41,171 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
         )
     }
 
+    private fun drawGameObject(canvas: Canvas, gameObject: GameObject, toScreen2d: Rect) {
+        if (gameObject.animated) {
+            if (gameObject.facing == 1) {
+                // Rotirano
+                val flipper = Matrix()
+                flipper.preScale(-1f, 1f)
+                val r: Rect = gameObject.getRectToDraw(System.currentTimeMillis())
+                val b = Bitmap.createBitmap(
+                    levelManager.getBitmap(gameObject.type),
+                    r.left,
+                    r.top,
+                    r.width(),
+                    r.height(),
+                    flipper,
+                    true
+                )
+                canvas.drawBitmap(
+                    b, toScreen2d.left.toFloat(), toScreen2d.top.toFloat(),
+                    paint
+                )
+
+            } else { // Regularni smjer
+                canvas.drawBitmap(
+                    levelManager.getBitmap(gameObject.type),
+                    gameObject.getRectToDraw(System.currentTimeMillis()),
+                    toScreen2d, paint)
+            }
+        } else { // Bez animacije
+            canvas.drawBitmap(levelManager.getBitmap(gameObject.type),
+                toScreen2d.left.toFloat(),
+                toScreen2d.top.toFloat(),
+                paint)
+        }
+
+        paint.color = Color.argb(255, 255, 255, 255)
+        for (i in 0 until levelManager.player.bfg.numBullets) {
+            toScreen2d.set(
+                viewport.worldToScreen(
+                    levelManager.player.bfg.getBulletX(i),
+                    levelManager.player.bfg.getBulletY(i),
+                    .25f,
+                    .05f
+                )
+            )
+            canvas.drawRect(toScreen2d, paint)
+        }
+    }
+
+
+    private fun drawHUD(canvas: Canvas) {
+        val topSpace: Float = viewport.pixelsPerMeterY / 4f
+        val iconSize: Float = viewport.pixelsPerMeterX.toFloat()
+        val padding: Float = viewport.pixelsPerMeterX / 5f
+        val centring: Float = viewport.pixelsPerMeterY / 6f
+
+        paint.textSize = viewport.pixelsPerMeterY / 2f
+        paint.textAlign = Paint.Align.CENTER
+
+        paint.color = Color.argb(100, 0, 0, 0)
+        canvas.drawRect(0f, 0f, iconSize * 7.0f, topSpace * 2 + iconSize, paint)
+
+        paint.color = Color.argb(255, 255, 255, 0)
+        canvas.drawBitmap(levelManager.getBitmap('e'), 0f, topSpace, paint)
+
+        canvas.drawText(
+            "" + playerState.getLives(), iconSize * 1 + padding, iconSize - centring, paint
+        )
+
+        canvas.drawBitmap(levelManager.getBitmap('c'), iconSize * 2.5f + padding, topSpace, paint)
+
+        canvas.drawText(
+            "" + playerState.getCredits(), iconSize * 3.5f + padding * 2,
+            iconSize - centring, paint
+        )
+
+        canvas.drawText(
+            "" + playerState.mgFireRate, iconSize * 6.0f + padding * 2,
+            iconSize - centring, paint
+        )
+    }
+
+    private fun drawButtons(canvas: Canvas) {
+        paint.color = Color.argb(80, 255, 255, 255)
+        val buttonsToDraw: ArrayList<Rect> = inputController.getButtons()
+        for (rect in buttonsToDraw) {
+            val rf = RectF(
+                rect.left.toFloat(), rect.top.toFloat(),
+                rect.right.toFloat(), rect.bottom.toFloat()
+            )
+            canvas.drawRoundRect(rf, 15f, 15f, paint)
+        }
+    }
+
+    private fun drawPauseScreen(canvas: Canvas) {
+        if (!this.levelManager.playing) {
+            paint.textAlign = Paint.Align.CENTER
+            paint.color = Color.argb(255, 255, 255, 255)
+            paint.textSize = 120f
+            canvas.drawText("Paused", (screenWidth / 2).toFloat(), (screenHeight / 2).toFloat(), paint)
+        }
+    }
+
+    var fps = 0
+    private fun drawDebugInfo(canvas: Canvas) {
+        if (debugging) {
+            paint.textSize = 48f
+            paint.textAlign = Paint.Align.LEFT
+            paint.color = Color.argb(255, 255, 255, 255)
+
+            canvas.drawText("Num objects:" +
+                    levelManager.gameObjects.size, 10f, 150f, paint)
+
+            canvas.drawText("FPS:" +
+                    fps.toString(), 10f, 200f, paint)
+            canvas.drawText("PlayerX:" +
+                    levelManager.gameObjects[levelManager.playerIndex].worldLocation.x,
+                10f, 250f, paint)
+            canvas.drawText("PlayerY:" +
+                    levelManager.gameObjects[levelManager.playerIndex].worldLocation.y,
+                10f, 300f, paint)
+            canvas.drawText("Gravity: " +
+                    levelManager.gravity,
+                10f, 350f, paint)
+            canvas.drawText("xVelocity: " +
+                    levelManager.gameObjects[levelManager.playerIndex].xVelocity,
+                10f, 400f, paint)
+            canvas.drawText("yVelocity: " +
+                    levelManager.gameObjects[levelManager.playerIndex].yVelocity,
+                10f, 450f, paint)
+
+            viewport.resetNumClipped()
+        }
+    }
+
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
 
         if (holder.surface.isValid) {
+            paint.color = Color.argb(255, 0, 0, 0)
             canvas.drawColor(Color.argb(255, 0, 0, 200))
 
-            var toScreen2d: Rect
+            drawBackground(canvas, 0, -3)
+            drawGameObjects(canvas)
+            drawBackground(canvas, 4, 0)
+            drawPauseScreen(canvas)
+            drawButtons(canvas)
+            drawHUD(canvas)
+            drawDebugInfo(canvas)
+        }
+    }
+
+    private fun drawGameObjects(canvas: Canvas) {
+        var toScreen2d: Rect
+        for (gameObject in levelManager.gameObjects) {
             for (layer in -1..1) {
-                for (gameObject in levelManager.gameObjects) {
-                    if (gameObject.visible && gameObject.worldLocation.z == layer) {
-                        toScreen2d = viewport.worldToScreen(
-                            gameObject.worldLocation.x,
-                            gameObject.worldLocation.y,
-                            gameObject.width,
-                            gameObject.height
-                        )
+                if (gameObject.visible && gameObject.worldLocation.z == layer) {
+                    toScreen2d = viewport.worldToScreen(
+                        gameObject.worldLocation.x,
+                        gameObject.worldLocation.y,
+                        gameObject.width,
+                        gameObject.height
+                    )
 
-                        canvas.drawBitmap(levelManager.getBitmap(gameObject.type),
-                            toScreen2d.left.toFloat(),
-                            toScreen2d.top.toFloat(),
-                            paint)
-                    }
+                    drawGameObject(canvas, gameObject, toScreen2d)
                 }
-            }
-
-            if (debugging) {
-                paint.textSize = 48f
-                paint.textAlign = Paint.Align.LEFT
-                paint.color = Color.argb(255, 255, 255, 255)
-
-                canvas.drawText("Num objects ${levelManager.gameObjects.size}",
-                                10f, 50f, paint)
-                canvas.drawText("Num clipped: ${viewport.numClipped}",
-                                10f, 100f, paint)
-                canvas.drawText("PlayerX: " +
-                        "${levelManager.gameObjects[levelManager.playerIndex].worldLocation.x}",
-                        10f, 150f, paint)
-                canvas.drawText("PlayerY: " +
-                        "${levelManager.gameObjects[levelManager.playerIndex].worldLocation.y}",
-                        10f, 200f, paint)
-                canvas.drawText("Gravity: " +
-                        levelManager.gravity,
-                    10f, 250f, paint)
-                canvas.drawText("xVelocity: " +
-                        levelManager.gameObjects[levelManager.playerIndex].xVelocity,
-                    10f, 300f, paint)
-                canvas.drawText("yVelocity: " +
-                        levelManager.gameObjects[levelManager.playerIndex].yVelocity,
-                    10f, 350f, paint)
-
-                viewport.resetNumClipped()
             }
         }
     }
@@ -114,6 +229,11 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
 
                 if (levelManager.playing) {
                     gameObject.update(fps, levelManager.gravity)
+
+                    if (gameObject.type == 'd') {
+                        val d = gameObject as Drone
+                        d.setWaypoint(levelManager.player.worldLocation)
+                    }
                 }
             } else {
                 gameObject.visible = false
@@ -173,11 +293,50 @@ class GameView(context: Context, width: Int, height: Int) : SurfaceView(context)
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        when (event.action and MotionEvent.ACTION_MASK) {
-            MotionEvent.ACTION_DOWN -> levelManager.switchPlayingStatus()
-        }
+    private fun drawBackground(canvas: Canvas, start: Int, stop: Int) {
+        var fromRect1: Rect
+        var toRect1: Rect
+        var fromRect2: Rect
+        var toRect2: Rect
 
+        levelManager.backgrounds.forEach {bg ->
+            if (bg.z < start && bg.z > stop) {
+                if (!viewport.clipObjects(-1f, bg.y, 1000f, bg.height.toFloat())) {
+                    val startY = viewport.getScreenCenterY() - (viewport.getViewportWorldCentreY() - bg.y) * viewport.getPixelsPerMetreY()
+                    val endY = viewport.getScreenCenterY() - (viewport.getViewportWorldCentreY() - bg.endY) * viewport.getPixelsPerMetreY()
+
+                    fromRect1 = Rect(0, 0, bg.width - bg.xClip, bg.height)
+                    toRect1 = Rect(bg.xClip, startY.toInt(), bg.width, endY.toInt())
+
+
+                    fromRect2 = Rect(bg.width - bg.xClip, 0, bg.width, bg.height)
+                    toRect2 = Rect(0, startY.toInt(), bg.xClip, endY.toInt())
+
+                    if (!bg.reversedFirst) {
+                        canvas.drawBitmap(bg.bitmap, fromRect1, toRect1, paint)
+                        canvas.drawBitmap(bg.bitmapReversed, fromRect2, toRect2, paint)
+                    } else {
+                        canvas.drawBitmap(bg.bitmap, fromRect2, toRect2, paint)
+                        canvas.drawBitmap(bg.bitmapReversed, fromRect1, toRect1, paint)
+                    }
+
+                    bg.xClip -= (levelManager.player.xVelocity / (20 / bg.speed)).toInt()
+                    if (bg.xClip >= bg.width) {
+                        bg.xClip = 0
+                        bg.reversedFirst = !bg.reversedFirst
+                    } else if (bg.xClip <= 0) {
+                        bg.xClip = bg.width
+                        bg.reversedFirst = !bg.reversedFirst
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onTouchEvent(motionEvent: MotionEvent): Boolean {
+        inputController.handleInput(motionEvent)
+
+        //invalidate();
         return true
     }
 }

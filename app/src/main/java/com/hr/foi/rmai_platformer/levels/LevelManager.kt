@@ -24,6 +24,7 @@ import com.hr.foi.rmai_platformer.entities.scenery.Tree2
 class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX: Float, playerY: Float, screenWidth: Int) {
     val gameObjects: ArrayList<GameObject> = ArrayList()
     val bitmaps: Array<Bitmap?> = arrayOfNulls(20)
+    private val bitmaps: Array<Bitmap?> = arrayOfNulls(25)
 
     private var currentLevel: LevelData? = null
     var playing = false
@@ -33,6 +34,7 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
     var gravity = 6f
 
     var levelHeight = 0
+    var levelWidth = 0
 
     init {
         currentLevel = when (level) {
@@ -41,12 +43,13 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
             "LevelForest" -> LevelForest()
             "LevelMountain" -> LevelMountain()
             else -> TestLevel()
-       }
+        }
 
-       player = Player(0f, 0f)
+       player = Player(0f, 0f, pixelsPerMeter)
 
        loadMapData(context, pixelsPerMeter, playerX, playerY)
-       //playing = true
+       loadBackgrounds(context, pixelsPerMeter, screenWidth)
+
     }
 
     fun getBitmap(blockType: Char): Bitmap {
@@ -120,11 +123,24 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
 
     fun switchPlayingStatus() {
         playing = !playing
-
-        if (!playing) {
-            gravity = 0f
+        gravity = if (playing) {
+            6f
         } else {
-            gravity = 6f
+            0f
+        }
+    }
+    private fun loadBackgrounds(
+        context: Context,
+        pixelsPerMetre: Int, screenWidth: Int
+    ) {
+        backgrounds = ArrayList()
+        for (bgData in currentLevel!!.backgroundDataList) {
+            backgrounds.add(
+                Background(
+                    context,
+                    pixelsPerMetre, screenWidth, bgData
+                )
+            )
         }
     }
 }
