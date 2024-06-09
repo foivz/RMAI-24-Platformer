@@ -27,7 +27,6 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
     private lateinit var levelManager: LevelManager
     private val debugging = false
     private lateinit var inputController: InputController
-    private var playerState: PlayerState = PlayerState()
 
     init {
         loadLevel("LevelCave", 1f, 16f)
@@ -38,7 +37,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
         inputController = InputController(screenWidth, screenHeight, levelManager)
 
         val location = PointF(playerX, playerY)
-        playerState.saveLocation(location)
+        PlayerState.saveLocation(location)
 
         viewport.setWorldCenter(
             levelManager.player.worldLocation.x,
@@ -111,18 +110,18 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
         canvas.drawBitmap(levelManager.getBitmap('e'), 0f, topSpace, paint)
 
         canvas.drawText(
-            "" + playerState.getLives(), iconSize * 1 + padding, iconSize - centring, paint
+            "" + PlayerState.getLives(), iconSize * 1 + padding, iconSize - centring, paint
         )
 
         canvas.drawBitmap(levelManager.getBitmap('c'), iconSize * 2.5f + padding, topSpace, paint)
 
         canvas.drawText(
-            "" + playerState.getCredits(), iconSize * 3.5f + padding * 2,
+            "" + PlayerState.getCredits(), iconSize * 3.5f + padding * 2,
             iconSize - centring, paint
         )
 
         canvas.drawText(
-            "" + playerState.mgFireRate, iconSize * 6.0f + padding * 2,
+            "" + PlayerState.mgFireRate, iconSize * 6.0f + padding * 2,
             iconSize - centring, paint
         )
     }
@@ -254,13 +253,13 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
                 levelManager.player.worldLocation.x > levelManager.levelWidth ||
                 levelManager.player.worldLocation.y > levelManager.levelHeight) {
 
-                playerState.loseLife()
+                PlayerState.loseLife()
                 levelManager.player.setWorldLocation(levelManager.player.worldLocation.x, levelManager.player.worldLocation.y)
                 levelManager.player.setxVelocity(0f)
             }
 
-            if (playerState.getLives() <= 0) {
-                playerState = PlayerState()
+            if (PlayerState.getLives() <= 0) {
+                PlayerState.reset()
                 loadLevel("LevelCave", 5f, 16f)
             }
         }
@@ -300,18 +299,18 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
 
     private fun handleExtraLife(gameObject: GameObject, hit: Int) {
         handlePickup(gameObject, hit)
-        playerState.addLife()
+        PlayerState.addLife()
     }
 
     private fun handleCoinPickup(gameObject: GameObject, hit: Int) {
         handlePickup(gameObject, hit)
-        playerState.gotCredit()
+        PlayerState.gotCredit()
     }
 
     private fun handleEnemy() {
-        playerState.loseLife()
+        PlayerState.loseLife()
 
-        val location = PointF(playerState.loadLocation().x, playerState.loadLocation().y)
+        val location = PointF(PlayerState.loadLocation().x, PlayerState.loadLocation().y)
         levelManager.player.setWorldLocation(location.x, location.y, 0)
         levelManager.player.setxVelocity(0f)
     }
@@ -323,9 +322,9 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
     }
 
     private fun handleFire() {
-        playerState.loseLife()
+        PlayerState.loseLife()
 
-        levelManager.player.setWorldLocation(playerState.loadLocation().x, playerState.loadLocation().y)
+        levelManager.player.setWorldLocation(PlayerState.loadLocation().x, PlayerState.loadLocation().y)
         levelManager.player.setxVelocity(0f)
     }
 
