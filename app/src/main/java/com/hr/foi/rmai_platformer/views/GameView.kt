@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
+import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceView
 import com.hr.foi.rmai_platformer.entities.Drone
@@ -19,6 +20,11 @@ import com.hr.foi.rmai_platformer.levels.LevelManager
 import com.hr.foi.rmai_platformer.levels.Location
 import com.hr.foi.rmai_platformer.utils.InputController
 import com.hr.foi.rmai_platformer.utils.RectHitbox
+import com.hr.foi.rmai_platformer.ws.NetworkService
+import com.hr.foi.rmai_platformer.ws.Perk
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class GameView(context: Context, private val screenWidth: Int, private val screenHeight: Int) : SurfaceView(context) {
@@ -29,7 +35,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
     private lateinit var inputController: InputController
 
     init {
-        loadLevel("LevelCave", 1f, 16f)
+        loadLevel("TestLevel", 1f, 1f)
     }
 
     private fun loadLevel(level: String, playerX: Float, playerY: Float) {
@@ -260,7 +266,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
 
             if (PlayerState.getLives() <= 0) {
                 PlayerState.reset()
-                loadLevel("LevelCave", 5f, 16f)
+                loadLevel("TestLevel", 1f, 1f)
             }
         }
     }
@@ -328,6 +334,13 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
         levelManager.player.setxVelocity(0f)
     }
 
+    private fun handleGunUpgrade(gameObject: GameObject, hit: Int) {
+        if (PlayerState.hasRateOfFireUpgrade()) {
+            handlePickup(gameObject, hit)
+            levelManager.player.bfg.upgradeRateOfFire()
+        }
+    }
+
     private fun checkCollisionsWithPlayer(gameObject: GameObject) {
         val hit: Int = levelManager.player.checkCollisions(gameObject.rectHitbox)
         if (hit > 0) {
@@ -338,6 +351,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
                 'g' -> handleEnemy()
                 'f' -> handleFire()
                 't' -> handleTeleport(gameObject)
+                'u' -> handleGunUpgrade(gameObject, hit)
                 else -> {
                     if (hit == 1) {
                         levelManager.player.setxVelocity(0f)

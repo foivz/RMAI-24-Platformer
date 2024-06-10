@@ -8,7 +8,9 @@ import com.hr.foi.rmai_platformer.entities.ExtraLife
 import com.hr.foi.rmai_platformer.entities.Fire
 import com.hr.foi.rmai_platformer.entities.GameObject
 import com.hr.foi.rmai_platformer.entities.Guard
+import com.hr.foi.rmai_platformer.entities.MachineGunUpgrade
 import com.hr.foi.rmai_platformer.entities.Player
+import com.hr.foi.rmai_platformer.entities.PlayerState
 import com.hr.foi.rmai_platformer.entities.Teleport
 import com.hr.foi.rmai_platformer.entities.platforms.Brick
 import com.hr.foi.rmai_platformer.entities.platforms.Coal
@@ -89,6 +91,7 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
             'm' -> 19
             'z' -> 20
             'f' -> 21
+            'u' -> 22
             else -> 0
         }
     }
@@ -131,6 +134,9 @@ class LevelManager(level: String, context: Context, pixelsPerMeter: Int, playerX
                             't' -> {
                                 teleportIndex++
                                 gameObjects.add(Teleport(j, i, currentLevel!!.locations[teleportIndex]))
+                            }
+                            'u' -> {
+                                if (PlayerState.hasRateOfFireUpgrade()) gameObjects.add(MachineGunUpgrade(j, i))
                             }
                         }
 
