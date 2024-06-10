@@ -8,9 +8,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.hr.foi.rmai_platformer.entities.PlayerState
 import com.hr.foi.rmai_platformer.ws.NetworkService
 import com.hr.foi.rmai_platformer.ws.Perk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -61,5 +69,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         getUnlocks(username)
+        initAdMob()
+    }
+
+    private fun initAdMob() {
+        val backgroundScope = CoroutineScope(Dispatchers.Main)
+        backgroundScope.launch {
+            MobileAds.initialize(this@MainActivity) {
+
+            }
+        }
+
+
+
     }
 }

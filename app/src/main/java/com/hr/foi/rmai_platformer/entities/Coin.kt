@@ -1,6 +1,6 @@
+package com.hr.foi.rmai_platformer.entities
 
 import com.hr.foi.rmai_platformer.entities.GameObject
-
 
 class Coin(worldStartX: Int, worldStartY: Int, type: Char) :
     GameObject(.5f, .5f, 1, "coin", 'c') {

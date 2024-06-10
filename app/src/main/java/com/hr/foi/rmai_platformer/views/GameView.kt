@@ -16,6 +16,7 @@ import com.hr.foi.rmai_platformer.entities.Drone
 import com.hr.foi.rmai_platformer.entities.GameObject
 import com.hr.foi.rmai_platformer.entities.PlayerState
 import com.hr.foi.rmai_platformer.entities.Teleport
+import com.hr.foi.rmai_platformer.levels.GameLostListener
 import com.hr.foi.rmai_platformer.levels.LevelManager
 import com.hr.foi.rmai_platformer.levels.Location
 import com.hr.foi.rmai_platformer.utils.InputController
@@ -33,6 +34,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
     private lateinit var levelManager: LevelManager
     private val debugging = false
     private lateinit var inputController: InputController
+    private var gameLostListener: GameLostListener? = null
 
     init {
         loadLevel("TestLevel", 1f, 1f)
@@ -265,6 +267,8 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
             }
 
             if (PlayerState.getLives() <= 0) {
+                gameLostListener?.onGameLost()
+
                 PlayerState.reset()
                 loadLevel("TestLevel", 1f, 1f)
             }
@@ -410,5 +414,9 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
 
         //invalidate();
         return true
+    }
+
+    fun setGameLostListener(listener: GameLostListener) {
+            this.gameLostListener = listener
     }
 }
